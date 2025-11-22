@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>For Marej — From Diab</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+--bg1: #d9a7ff;
+--bg2: #fcd1ff;
+--card-bg: #ffffff;
+--accent: #b94bff;
+--accent2: #ff6fb5;
+--muted: #6b6b6b;
+}
+
+*{box-sizing:border-box}
+body{
+margin:0;
+padding:30px;
+font-family: 'Poppins', sans-serif;
+background: linear-gradient(135deg, var(--bg1), var(--bg2));
+color:#222;
+direction:ltr;
+text-align:left;
+}
+
+.container{
+max-width:1100px;
+margin:0 auto;
+}
+
+header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
+}
+
+.names{
+background:rgba(255,255,255,0.35);
+padding:10px 22px;
+border-radius:40px;
+backdrop-filter:blur(6px);
+box-shadow:0 6px 16px rgba(0,0,0,0.1);
+display:flex;
+gap:12px;
+font-size:17px;
+font-weight:700;
+color:#5a006d;
+}
+
+.btn{
+background:var(--accent);
+border:none;
+padding:10px 15px;
+border-radius:10px;
+color:white;
+font-weight:600;
+cursor:pointer;
+box-shadow:0 8px 18px rgba(0,0,0,0.15);
+}
+
+.btn.ghost{
+background:transparent;
+border:1px solid rgba(255,255,255,0.7);
+color:white;
+box-shadow:none;
+}
+
+.hero{
+background:rgba(255,255,255,0.20);
+padding:25px;
+border-radius:20px;
+backdrop-filter:blur(5px);
+color:#fff;
+margin-bottom:25px;
+box-shadow:0 10px 25px rgba(0,0,0,0.1);
+}
+
+.hero h1{
+margin:0;
+font-size:32px;
+display:flex;
+align-items:center;
+gap:14px;
+}
+
+.heart{
+font-size:42px;
+animation: beat 1.5s infinite;
+}
+
+@keyframes beat{
+0%,100%{transform:scale(1);}
+50%{transform:scale(1.18);}
+}
+
+.gallery{
+display:grid;
+grid-template-columns:repeat(auto-fill, minmax(250px,1fr));
+gap:20px;
+margin-top:20px;
+}
+
+.card{
+background:var(--card-bg);
+padding:12px;
+border-radius:16px;
+box-shadow:0 6px 18px rgba(0,0,0,0.10);
+transition:.2s;
+}
+.card:hover{
+transform:translateY(-6px);
+box-shadow:0 14px 32px rgba(0,0,0,0.15);
+}
+
+.img-wrap{
+height:180px;
+border-radius:14px;
+overflow:hidden;
+background:linear-gradient(120deg,#ffe0f3,#fff4fc);
+display:flex;
+justify-content:center;
+align-items:center;
+margin-bottom:10px;
+}
+
+.img-wrap img{
+width:100%;
+height:100%;
+object-fit:cover;
+}
+
+.placeholder{
+text-align:center;
+color:var(--muted);
+font-size:14px;
+padding:15px;
+}
+
+textarea{
+width:100%;
+min-height:80px;
+border-radius:10px;
+border:1px solid #eee;
+padding:10px;
+font-family:'Poppins';
+font-size:14px;
+}
+
+.card-footer{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-top:10px;
+}
+
+footer{
+text-align:center;
+margin-top:25px;
+color:white;
+font-size:14px;
+}
+
+#globalFile{
+display:none;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<header>
+<div class="names" contenteditable="true">
+Dibo ❤️ Mimi
+</div>
+
+<div>
+<button class="btn" id="addCard">Add New Photo</button>
+<button class="btn ghost" id="printBtn">Save as PDF</button>
+</div>
+</header>
+
+<section class="hero">
+<h1><span class="heart">💞</span> A Love Message for Mimi</h1>
+<p style="margin-top:6px;opacity:0.95;">
+Baby Mimi, ente rouhe w albe w ajmal ke2en bhayete w aham makhlu2 ele bl dene w ana bhebk ktir ya ajmal zaghtura bl dene kla w ajmal tefle bnazaro lal baba allah ikhalile ieke w ma iehrmne mnk w mn hanenk w mn klshi bi khsk w ihmile ieke ya rouhe bkl khtwe w seinieh bhayetk 💗✨
+Bhebek Baba ❤️ 
+ 
+</p>
+</section>
+
+<input type="file" id="globalFile" accept="image/*">
+
+<div class="gallery" id="gallery"></div>
+
+<div style="margin-top:20px;text-align:center;">
+<button class="btn" id="chooseImg">Choose Photo</button>
+<button class="btn ghost" id="resetBtn">Reset Everything</button>
+</div>
+
+<footer>
+Made with ❤️ by Diab for Marej
+</footer>
+</div>
+
+<script>
+const STORAGE = "love_eng_v1";
+const gallery = document.getElementById("gallery");
+const globalFile = document.getElementById("globalFile");
+
+function genId(){ return "c_"+Math.random().toString(36).slice(2,9); }
+
+function save(){
+const cards = [...document.querySelectorAll(".card")].map(card => ({
+id: card.dataset.id,
+img: card.querySelector("img")?.src || "",
+text: card.querySelector("textarea").value
+}));
+localStorage.setItem(STORAGE, JSON.stringify(cards));
+}
+
+function load(){
+const data = localStorage.getItem(STORAGE);
+return data ? JSON.parse(data) : null;
+}
+
+function createCard(data){
+const card = document.createElement("div");
+card.className = "card";
+card.dataset.id = data.id;
+
+const wrap = document.createElement("div");
+wrap.className = "img-wrap";
+
+if(data.img){
+const img = document.createElement("img");
+img.src = data.img;
+wrap.appendChild(img);
+} else {
+const ph = document.createElement("div");
+ph.className = "placeholder";
+ph.innerHTML = "No photo yet<br>💠 Add one!";
+wrap.appendChild(ph);
+}
+
+const fileInput = document.createElement("input");
+fileInput.type = "file";
+fileInput.accept = "image/*";
+fileInput.style.display = "none";
+
+const changeBtn = document.createElement("button");
+changeBtn.className = "btn";
+changeBtn.textContent = "Change Photo";
+
+changeBtn.onclick = () => fileInput.click();
+
+fileInput.onchange = e => {
+const f = e.target.files[0];
+if(!f) return;
+const r = new FileReader();
+r.onload = ev => {
+wrap.innerHTML = "";
+let img = document.createElement("img");
+img.src = ev.target.result;
+wrap.appendChild(img);
+save();
+}
+r.readAsDataURL(f);
+};
+
+const delBtn = document.createElement("button");
+delBtn.className = "btn ghost";
+delBtn.textContent = "Delete";
+delBtn.onclick = () => {
+if(confirm("Delete this card?")){
+card.remove();
+save();
+}
+}
+
+const text = document.createElement("textarea");
+text.placeholder = "Write something sweet... ✨";
+text.value = data.text;
+text.oninput = () => save();
+
+const footer = document.createElement("div");
+footer.className = "card-footer";
+footer.append(delBtn, changeBtn);
+
+card.append(wrap, fileInput, text, footer);
+
+return card;
+}
+
+function init(){
+const saved = load();
+if(saved){
+saved.forEach(c => gallery.appendChild(createCard(c)));
+} else {
+const defaults = [
+{id:genId(), img:"", text:"A sweet message for the first photo... 💗"},
+{id:genId(), img:"", text:"A lovely note under the second one... 🌸"},
+{id:genId(), img:"", text:"Another heartfelt message... ✨"}
+];
+defaults.forEach(c => gallery.appendChild(createCard(c)));
+}
+}
+
+document.getElementById("addCard").onclick = ()=> globalFile.click();
+document.getElementById("chooseImg").onclick = ()=> globalFile.click();
+
+globalFile.onchange = e => {
+const f = e.target.files[0];
+if(!f) return;
+const r = new FileReader();
+r.onload = ev => {
+const card = createCard({id:genId(), img:ev.target.result, text:""});
+gallery.prepend(card);
+save();
+};
+r.readAsDataURL(f);
+e.target.value = "";
+};
+
+document.getElementById("printBtn").onclick = ()=> window.print();
+
+document.getElementById("resetBtn").onclick = ()=>{
+if(confirm("Reset everything?")){
+localStorage.removeItem(STORAGE);
+location.reload();
+}
+};
+
+init();
+</script>
+
+</body>
+</html>
